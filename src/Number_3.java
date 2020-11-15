@@ -17,7 +17,7 @@ OUTPUT FORMAT
 For each test case, display the largest prime factor of N.
 
 PERSONAL NOTE
-99999999997 This number takes a long time to get
+99999999997 This number can take a very long time to get
 5882352941  this factor.
 */
 
@@ -33,8 +33,13 @@ public class Number_3 {
             start = System.currentTimeMillis();
             System.out.println(largestPrimeFactor(n));
             elapsedTime(start, System.currentTimeMillis());
+
             start = System.currentTimeMillis();
             System.out.println(largestPrimeFactor1(n));
+            elapsedTime(start, System.currentTimeMillis());
+
+            start = System.currentTimeMillis();
+            System.out.println(largestPrimeFactor2(n));
             elapsedTime(start, System.currentTimeMillis());
         }
     }
@@ -47,12 +52,39 @@ public class Number_3 {
     public static long largestPrimeFactor(long n) {
         long product = n;
         long maxFactor = 1;
+
+        int[] first3 = {2, 3, 5};
+        for (int test3 : first3) {
+            while (product % test3 == 0) {
+                product /= test3;
+                maxFactor = test3;
+            }
+            if (product == 1) return maxFactor;
+        }
+        int[] increments = {4, 2, 4, 2, 4, 6, 2, 6};
+        int incrItr = 0;
+        for (long testFactor = 7;
+             testFactor * testFactor <= product;
+             testFactor += increments[incrItr++]) {
+            while (product % testFactor == 0) {
+                product /= testFactor;
+                maxFactor = testFactor;
+            }
+            if (incrItr > 7) incrItr = 0;
+        }
+        if (product > 1) return product;
+        return maxFactor;
+    }
+
+    public static long largestPrimeFactor1(long n) {
+        long product = n;
+        long maxFactor = 1;
         long testFactor = 1;
         product = maxOddFactor(product);
         if (product == 1) return 2;
         // if (isOddPrime(product)) return product;
         while (product > 1) {
-            if (maxFactor > Math.sqrt(product)) return product;
+            if (maxFactor * maxFactor > product) return product;
             testFactor += 2;
             while (product % testFactor == 0) {
                 product /= testFactor;
@@ -62,7 +94,7 @@ public class Number_3 {
         return maxFactor;
     }
 
-    public static long largestPrimeFactor1(long n) {
+    public static long largestPrimeFactor2(long n) {
         long product = n;
         long maxFactor = 1;
         long testFactor = 1;
