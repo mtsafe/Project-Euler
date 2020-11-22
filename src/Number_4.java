@@ -6,6 +6,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Number_4 {
+    static boolean isErrLogOn = true;
+
+    static void errLog(String str) {
+        if (isErrLogOn) {
+            System.err.println(str);
+        }
+    }
 
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
@@ -26,7 +33,7 @@ public class Number_4 {
     );
 
     static int nextPalindrome(int n) {
-        System.err.println("nextPalindrome " + n);
+        errLog("nextPalindrome " + n);
         for (int next = n; next >= 101101; next--) {
             Matcher palMatcher = palPattern.matcher(
                     Integer.toString(next));
@@ -40,28 +47,76 @@ public class Number_4 {
     static int[] primeArray = new int[primeArraySize];
     static int maxPrimeIndx;
 
+    // primeArray[] should look like {2, 3, 5, 7, ...}
     static {
+        errLog("BEGIN: primeArray initialization");
         primeArray[0] = 2;
-        for (maxPrimeIndx = 1; maxPrimeIndx < primeArraySize; maxPrimeIndx++) {
-            primeArray[maxPrimeIndx] = (int) nextPrime(
-                    primeArray[maxPrimeIndx - 1]);
+        primeArray[1] = 3;
+        primeArray[2] = 5;
+        maxPrimeIndx = 2;
+        for (int primeIndx = maxPrimeIndx + 1;
+             primeIndx < primeArraySize;
+             primeIndx++, maxPrimeIndx++) {
+            errLog("LOOP: primeIndx: " + primeIndx +
+                    " < " + primeArraySize + " :primeArraySize");
+            errLog("primeArray " + Arrays.toString(primeArray));
+            errLog(
+                    "ASSIGN: primeArray[" + primeIndx + "] = (int) nextPrime(" +
+                            "primeArray[" + primeIndx + " - 1])");
+            primeArray[primeIndx] = (int) nextPrime(
+                    primeArray[primeIndx - 1]);
+            if (primeArray[primeIndx] <= primeArray[primeIndx - 1]) {
+                errLog("Bad Sequence");
+                break;
+            }
         }
-        System.err.println("primeArray "+Arrays.toString(primeArray));
+        errLog("primeArray " + Arrays.toString(primeArray));
+        errLog("END: primeArray initialization");
     }
 
+    // Given a prime number "prime" return the next prime number
     static int nextPrime(int prime) {
-        for (int primeIndx = 1; primeIndx < primeArraySize; primeIndx++) {
+        errLog("nextPrime(" + prime + ")");
+//        if (prime < 2) return 2;
+        // First check the global array
+        int primeIndx = 0;
+        for (; primeIndx < maxPrimeIndx; primeIndx++) {
+            if (primeArray[primeIndx] > prime)
+                return primeArray[primeIndx];
             if (primeArray[primeIndx] == prime)
                 return primeArray[primeIndx + 1];
         }
-        return (-1);
+        // At this point the array is of no use.
+        // Continuing from that last prime in the global array
+        // use calculations to find the next prime number
+//        errLog("primeIndx < maxPrimeIndx : " +
+//                primeIndx + "<" + maxPrimeIndx);
+//        for (; primeIndx < primeArraySize; primeIndx++, maxPrimeIndx++) {
+        errLog("Initialize Loop nextNum = primeArray[" + primeIndx + "]");
+        int nextNum = primeArray[primeIndx] + 2;
+        for (; !isOddPrime(nextNum); nextNum += 2) {
+            errLog("LoopCondition !isOddPrime(" + nextNum + ")");
+            if (nextNum > 30) return (-1);
+        }
+        return (nextNum);
     }
     // END Array of prime numbers
+
+    // Test for isOddPrime
+    static boolean isOddPrime(int oddNum) {
+        if (oddNum % 2 == 0) return false;
+        int odd = oddNum;
+        for (int divisor = 3; divisor <= Math.sqrt(odd); divisor++) {
+            if (odd % divisor == 0) return false;
+        }
+        return true;
+    }
+    // END Test for isOddPrime
 
     // Array of prime factors
     // factorArray[0] = the number of factors in the array;
     static int[] primeFactorization(int num) {
-        System.err.println("primeFactorization " + num);
+        errLog("primeFactorization " + num);
         int product = num;
         int[] factorArray = new int[primeArraySize + 1];
         int factorIndx = 1;
@@ -74,10 +129,10 @@ public class Number_4 {
                 factorArray[factorIndx] = primeArray[primeIndx];
                 product /= factorArray[factorIndx];
                 factorArray[0] = factorIndx++;
-                System.err.println(product);
+                errLog(Integer.toString(product));
             }
         }
-        System.err.println("return factors");
+        errLog("return factors");
         return factorArray;
     }
 
@@ -86,8 +141,8 @@ public class Number_4 {
         return num >= 100 && num < 1000;
     }
 
-    static boolean winningCombo(int[] fArray, long fBits) {
-        System.err.println("winningCombo " +
+    static boolean isWinningCombo(int[] fArray, long fBits) {
+        errLog("winningCombo " +
                 Arrays.toString(fArray) + " : " + fBits);
         int factorA = 1, factorB = 1;
         int numFactors = fArray[0];
@@ -99,8 +154,8 @@ public class Number_4 {
                 factorB *= fArray[fAIndx];
             fAMask <<= 1;
         }
-        System.err.println("return "+factorA+" "+factorB);
-        System.err.println("return "+is3Digit(factorA)+" "+is3Digit(factorB));
+        errLog("return " + factorA + " " + factorB);
+        errLog("return " + is3Digit(factorA) + " " + is3Digit(factorB));
         return is3Digit(factorA) && is3Digit(factorB);
     }
 
@@ -108,12 +163,12 @@ public class Number_4 {
         int[] factorArray = primeFactorization(pal6);
         int numFactors = factorArray[0];
         for (long factorBits = 1; factorBits <= numFactors; factorBits++) {
-            if (winningCombo(factorArray, factorBits))
+            if (isWinningCombo(factorArray, factorBits))
                 return true;
         }
         return false;
     }
-
+/*
     static boolean isProduct1(int pal6) {
         int evenness = pal6 % 2 == 0 ? 2 : 1;
         int thirdness = pal6 % 3 == 0 ? 3 : 1;
@@ -143,10 +198,11 @@ public class Number_4 {
             start = 101;
         }
         for (int factor = start; factor < stop; factor += ness) {
-            System.err.println(pal6 + " " + factor + " " + ness);
+            errLog(pal6 + " " + factor + " " + ness);
             if (pal6 % factor == 0)
                 return true;
         }
         return false;
     }
+ */
 }
