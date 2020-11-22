@@ -25,7 +25,7 @@ public class wrapperForMainStdIO {
     private ByteArrayInputStream testIn;
     private ByteArrayOutputStream testOut;
 
-    @Before
+//    @Before
     public void setUpOutput() {
         testOut = new ByteArrayOutputStream();
         System.setOut(new PrintStream(testOut));
@@ -40,7 +40,7 @@ public class wrapperForMainStdIO {
         return testOut.toString();
     }
 
-    @After
+//    @After
     public void restoreSystemInputOutput() {
         System.setIn(systemIn);
         System.setOut(systemOut);
