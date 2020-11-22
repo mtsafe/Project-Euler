@@ -1,3 +1,5 @@
+// Project Euler #4: Largest palindrome product
+
 import java.util.Arrays;
 import java.util.Scanner;
 import java.util.regex.Matcher;
