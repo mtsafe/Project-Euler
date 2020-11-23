@@ -13,12 +13,33 @@ public class Number_4 {
             System.err.println(str);
         }
     }
+    public static String toString(String[] a) {
+        if (a == null)
+            return "null";
+
+        int iMax = a.length - 1;
+        if (iMax == -1)
+            return "[]";
+
+        StringBuilder b = new StringBuilder();
+        for (int i = 0; i <= iMax; i++) {
+            b.append(a[i]);
+            b.append("\n");
+        }
+        return b.toString();
+    }
 
     public static void main(String[] args) {
-        Scanner in = new Scanner(System.in);
-        int t = in.nextInt();
+        Scanner in = args == null ?
+                new Scanner(System.in) :
+                new Scanner(toString(args));
+//        Scanner in = new Scanner(String.valueOf(args));
+//        Scanner in = new Scanner(System.in);
+//        String tFoo = in.next();
+//        errLog("args is '"+tFoo+"'");
+        int t = Integer.parseInt(in.next());
         for (int a0 = 0; a0 < t; a0++) {
-            int n = in.nextInt();
+            int n = Integer.parseInt(in.next());
             int pal = nextPalindrome(n);
             while (!isProduct(pal)) {
                 pal--;
@@ -42,36 +63,46 @@ public class Number_4 {
         return 0;
     }
 
+    static boolean isProduct(int pal6) {
+        int[] factorArray = primeFactorization(pal6);
+        int numFactors = factorArray[0];
+        for (long factorBits = 1; factorBits <= numFactors; factorBits++) {
+            if (isWinningCombo(factorArray, factorBits))
+                return true;
+        }
+        return false;
+    }
+
     // Array of prime numbers
-    static int primeArraySize = 30;
-    static int[] primeArray = new int[primeArraySize];
+    static int primeCacheSize = 200;
+    static int[] primeCache = new int[primeCacheSize];
     static int maxPrimeIndx;
 
-    // primeArray[] should look like {2, 3, 5, 7, ...}
+    // primeCache[] should look like {2, 3, 5, 7, ...}
     static {
-        errLog("BEGIN: primeArray initialization");
-        primeArray[0] = 2;
-        primeArray[1] = 3;
-        primeArray[2] = 5;
+        errLog("BEGIN: primeCache initialization");
+        primeCache[0] = 2;
+        primeCache[1] = 3;
+        primeCache[2] = 5;
         maxPrimeIndx = 2;
         for (int primeIndx = maxPrimeIndx + 1;
-             primeIndx < primeArraySize;
+             primeIndx < primeCacheSize;
              primeIndx++, maxPrimeIndx++) {
             errLog("LOOP: primeIndx: " + primeIndx +
-                    " < " + primeArraySize + " :primeArraySize");
-            errLog("primeArray " + Arrays.toString(primeArray));
+                    " < " + primeCacheSize + " :primeCacheSize");
+            errLog("primeCache " + Arrays.toString(primeCache));
             errLog(
-                    "ASSIGN: primeArray[" + primeIndx + "] = (int) nextPrime(" +
-                            "primeArray[" + primeIndx + " - 1])");
-            primeArray[primeIndx] = (int) nextPrime(
-                    primeArray[primeIndx - 1]);
-            if (primeArray[primeIndx] <= primeArray[primeIndx - 1]) {
+                    "ASSIGN: primeCache[" + primeIndx + "] = (int) nextPrime(" +
+                            "primeCache[" + primeIndx + " - 1])");
+            primeCache[primeIndx] = (int) nextPrime(
+                    primeCache[primeIndx - 1]);
+            if (primeCache[primeIndx] <= primeCache[primeIndx - 1]) {
                 errLog("Bad Sequence");
                 break;
             }
         }
-        errLog("primeArray " + Arrays.toString(primeArray));
-        errLog("END: primeArray initialization");
+        errLog("primeCache " + Arrays.toString(primeCache));
+        errLog("END: primeCache initialization");
     }
 
     // Given a prime number "prime" return the next prime number
@@ -81,22 +112,22 @@ public class Number_4 {
         // First check the global array
         int primeIndx = 0;
         for (; primeIndx < maxPrimeIndx; primeIndx++) {
-            if (primeArray[primeIndx] > prime)
-                return primeArray[primeIndx];
-            if (primeArray[primeIndx] == prime)
-                return primeArray[primeIndx + 1];
+            if (primeCache[primeIndx] > prime)
+                return primeCache[primeIndx];
+            if (primeCache[primeIndx] == prime)
+                return primeCache[primeIndx + 1];
         }
         // At this point the array is of no use.
         // Continuing from that last prime in the global array
         // use calculations to find the next prime number
 //        errLog("primeIndx < maxPrimeIndx : " +
 //                primeIndx + "<" + maxPrimeIndx);
-//        for (; primeIndx < primeArraySize; primeIndx++, maxPrimeIndx++) {
-        errLog("Initialize Loop nextNum = primeArray[" + primeIndx + "]");
-        int nextNum = primeArray[primeIndx] + 2;
+//        for (; primeIndx < primeCacheSize; primeIndx++, maxPrimeIndx++) {
+        errLog("Initialize Loop nextNum = primeCache[" + primeIndx + "]");
+        int nextNum = primeCache[primeIndx] + 2;
         for (; !isOddPrime(nextNum); nextNum += 2) {
             errLog("LoopCondition !isOddPrime(" + nextNum + ")");
-            if (nextNum > 30) return (-1);
+//            if (nextNum > 30) return (-1);
         }
         return (nextNum);
     }
@@ -118,22 +149,35 @@ public class Number_4 {
     static int[] primeFactorization(int num) {
         errLog("primeFactorization " + num);
         int product = num;
-        int[] factorArray = new int[primeArraySize + 1];
+        int[] factorArray = new int[primeCacheSize + 1];
         int factorIndx = 1;
         factorArray[0] = 0;
-        for (int primeIndx = 0; primeIndx < primeArraySize; primeIndx++) {
-            while (product % primeArray[primeIndx] == 0) {
-                System.err.print(product + " " +
+        int testPrime = 0;
+        for (int primeIndx = 0; primeIndx < primeCacheSize; primeIndx++) {
+            testPrime = nextPrime(testPrime);
+            while (product % testPrime == 0) {
+                errLog(product + " " +
                         factorArray[factorIndx] + " " +
-                        primeArray[primeIndx] + " ");
-                factorArray[factorIndx] = primeArray[primeIndx];
+                        testPrime + " ");
+                factorArray[factorIndx] = testPrime;
                 product /= factorArray[factorIndx];
                 factorArray[0] = factorIndx++;
                 errLog(Integer.toString(product));
+                if (product == 1)
+                    return shortenArray(factorArray);
             }
         }
         errLog("return factors");
-        return factorArray;
+        return shortenArray(factorArray);
+    }
+
+    static int[] shortenArray(int[] arr) {
+        int newLength = arr[0] + 1;
+        int[] returnArray = new int[newLength];
+        for (int indx=0; indx<newLength; indx++) {
+            returnArray[indx] = arr[indx];
+        }
+        return returnArray;
     }
 
     // END Array of prime factors
@@ -141,32 +185,25 @@ public class Number_4 {
         return num >= 100 && num < 1000;
     }
 
+
     static boolean isWinningCombo(int[] fArray, long fBits) {
         errLog("winningCombo " +
                 Arrays.toString(fArray) + " : " + fBits);
         int factorA = 1, factorB = 1;
         int numFactors = fArray[0];
         long fAMask = 1;
-        for (int fAIndx = 0; fAIndx < numFactors; fAIndx++) {
-            if ((fBits & fAMask) == 1)
+        for (int fAIndx = 1; fAIndx <= numFactors; fAIndx++) {
+            errLog("LOOP "+fAIndx+" "+fAMask+" "+numFactors);
+            if ((fBits & fAMask) == 0)
                 factorA *= fArray[fAIndx];
             else
                 factorB *= fArray[fAIndx];
             fAMask <<= 1;
+            errLog("END LOOP " + factorA + " " + factorB);
         }
         errLog("return " + factorA + " " + factorB);
         errLog("return " + is3Digit(factorA) + " " + is3Digit(factorB));
         return is3Digit(factorA) && is3Digit(factorB);
-    }
-
-    static boolean isProduct(int pal6) {
-        int[] factorArray = primeFactorization(pal6);
-        int numFactors = factorArray[0];
-        for (long factorBits = 1; factorBits <= numFactors; factorBits++) {
-            if (isWinningCombo(factorArray, factorBits))
-                return true;
-        }
-        return false;
     }
 /*
     static boolean isProduct1(int pal6) {

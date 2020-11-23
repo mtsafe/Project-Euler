@@ -1,13 +1,23 @@
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class Number_4Test {
 
     @Test
+    void errLog() {
+        String parms = new String("foo");
+        Number_4.errLog(parms);
+        assertSame(parms, parms);
+    }
+
+    @Test
     void main() {
-        String []args = new String[] {"foo"};
-    //    Number_4.main(args);
+        String []args = {"1", "101110"};
+        Number_4.main(args);
+        assertArrayEquals(args, args);
     }
 
     @Test
@@ -95,7 +105,12 @@ class Number_4Test {
     }
 
     @Test
-    void primeFactorization() {
+    void primeFactorization_101101() {
+        int[] actual = Number_4.primeFactorization(101101);
+        int[] expected = {4, 7, 11, 13, 101 };
+        System.err.println("Comparing expected: "+ Arrays.toString(expected)+
+                "\nTo actual: "+Arrays.toString(actual));
+        assertArrayEquals(expected, actual);
     }
 
     @Test
@@ -120,19 +135,35 @@ class Number_4Test {
     }
 
     @Test
-    void isWinningCombo_False() {
-        int[] factorArray = { 101, 456 };
+    void isWinningCombo_2GoodFactors_True() {
+        int[] factorArray = {2, 101, 456 };
         long factorBits = 1;
+        boolean actual = Number_4.isWinningCombo(factorArray, factorBits);
+        assertTrue(actual);
+    }
+
+    @Test
+    void isWinningCombo_GoodFactors_True() {
+        int[] factorArray = {4, 7, 11, 13, 101 };
+        long factorBits = 9;
+        boolean actual = Number_4.isWinningCombo(factorArray, factorBits);
+        assertTrue(actual);
+    }
+
+    @Test
+    void isWinningCombo_BadFactors_False() {
+        int[] factorArray = {3, 7, 13, 101 };
+        long factorBits = 9;
         boolean actual = Number_4.isWinningCombo(factorArray, factorBits);
         assertFalse(actual);
     }
 
     @Test
-    void isWinningCombo_True() {
-        int[] factorArray = { 143, 707 };
-        long factorBits = 1;
+    void isWinningCombo_BadBits_False() {
+        int[] factorArray = {4, 7, 11, 13, 101 };
+        long factorBits = 13;
         boolean actual = Number_4.isWinningCombo(factorArray, factorBits);
-        assertTrue(actual);
+        assertFalse(actual);
     }
 
     @Test
