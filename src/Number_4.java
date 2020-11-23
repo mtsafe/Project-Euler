@@ -6,7 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Number_4 {
-    static boolean isErrLogOn = true;
+    static boolean isErrLogOn = false;
 
     static void errLog(String str) {
         if (isErrLogOn) {
@@ -39,6 +39,7 @@ public class Number_4 {
 //        errLog("args is '"+tFoo+"'");
         int t = Integer.parseInt(in.next());
         for (int a0 = 0; a0 < t; a0++) {
+            errLog("a0: "+a0+" < "+t+" :t");
             int n = Integer.parseInt(in.next());
             int pal = nextPalindrome(n);
             while (!isProduct(pal)) {
@@ -66,7 +67,7 @@ public class Number_4 {
     static boolean isProduct(int pal6) {
         int[] factorArray = primeFactorization(pal6);
         int numFactors = factorArray[0];
-        for (long factorBits = 1; factorBits <= numFactors; factorBits++) {
+        for (long factorBits = 1; factorBits <= Math.pow(2, numFactors)-1; factorBits++) {
             if (isWinningCombo(factorArray, factorBits))
                 return true;
         }
